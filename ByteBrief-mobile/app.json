@@ -1,0 +1,70 @@
+{
+  "expo": {
+    "name": "バイトブリーフ",
+    "slug": "byte-brief",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0D0F14"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "_comment_ios": "iOS config preserved for future release — restore 'ios' key when ready",
+    "_ios_bundleIdentifier": "com.yourcompany.bytebrief",
+    "_ios_buildNumber": "1",
+    "_ios_supportsTablet": false,
+    "_ios_infoPlist_notification": "毎朝のITニュースをお届けするために通知を使用します。",
+    "_ios_infoPlist_backgroundModes": [
+      "fetch",
+      "remote-notification"
+    ],
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0D0F14"
+      },
+      "package": "com.bytebrief.app",
+      "versionCode": 1,
+      "permissions": [
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#00D4FF"
+        }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/MPLUSCode-Regular.ttf",
+            "./assets/fonts/MPLUSCode-Bold.ttf",
+            "./assets/fonts/NotoSansJP-Regular.ttf",
+            "./assets/fonts/NotoSansJP-Bold.ttf"
+          ]
+        }
+      ]
+    ],
+    "scheme": "bytebrief",
+    "extra": {
+      "eas": {
+        "projectId": "7f39119b-7901-4539-94cb-aa5b5de40410"
+      },
+      "router": {}
+    },
+    "owner": "umeapps"
+  }
+}

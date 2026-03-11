@@ -1,0 +1,37 @@
+{
+  "cli": { "version": ">= 10.0.0" },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "android": { "buildType": "apk" }
+      // iOS development config is preserved below when needed:
+      // "ios": { "simulator": true }
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": { "buildType": "apk" }
+      // "ios": { "simulator": false }
+    },
+    "production": {
+      "android": { "buildType": "app-bundle" }
+      // iOS production config — uncomment when ready to ship:
+      // "ios": { "buildType": "release" }
+    }
+  },
+  "submit": {
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./google-play-service-account.json",
+        "track": "production"
+      }
+      // iOS submit config — uncomment when Apple Developer account is ready:
+      // "ios": {
+      //   "appleId": "YOUR_APPLE_ID@example.com",
+      //   "ascAppId": "YOUR_APP_STORE_CONNECT_NUMERIC_ID",
+      //   "appleTeamId": "YOUR_10_CHAR_TEAM_ID"
+      // }
+    }
+  }
+}
+

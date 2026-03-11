@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0D0F14;
+  --surface: #161B22;
+  --accent: #00D4FF;
+  --font-display: 'M PLUS 1 Code', 'Noto Sans JP', monospace;
+  --font-body: 'Noto Sans JP', sans-serif;
+  --font-size-base: 15px;
+  --line-height-body: 1.85;
+  --letter-spacing-jp: 0.02em;
+  --letter-spacing-en: 0.01em;
+}
+
+body {
+  @apply bg-bg text-gray-200 antialiased;
+  background-color: var(--bg);
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+}
+
+/* 日本語テキストの2行クランプ（レイアウトシフト防止） */
+.line-clamp-2-jp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.8em;
+}
+
+/* 日本語の禁則処理 */
+.text-jp {
+  font-family: var(--font-body);
+  line-height: var(--line-height-body);
+  letter-spacing: var(--letter-spacing-jp);
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+/* 英語テキスト用 */
+.text-en {
+  font-family: var(--font-body);
+  line-height: 1.6;
+  letter-spacing: var(--letter-spacing-en);
+  word-break: normal;
+}
+
+@keyframes newsCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-news-card-in {
+  animation: newsCardIn 300ms ease-out forwards;
+}
+
+.news-card-read {
+  opacity: 0.4 !important;
+  filter: grayscale(1);
+}
+
+@keyframes briefingCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-briefing-card-in {
+  animation: briefingCardIn 300ms ease-out forwards;
+  opacity: 0;
+}
+
+.briefing-card-read {
+  opacity: 0.5 !important;
+  filter: grayscale(0.6);
+}
+
+.category-filter-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes bookmarkDrawerIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.bookmark-drawer-panel {
+  animation: bookmarkDrawerIn 280ms ease-out forwards;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #1E2530 0%,
+    #2a3340 50%,
+    #1E2530 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}

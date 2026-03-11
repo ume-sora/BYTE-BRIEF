@@ -1,0 +1,65 @@
+{
+  "app": {
+    "name": "BYTE BRIEF",
+    "tagline": "Today's IT, in 5 minutes"
+  },
+  "briefing": {
+    "greeting_morning": "Good morning. Here's what matters in tech today.",
+    "greeting_afternoon": "Good afternoon. Here's the latest in tech news.",
+    "top_stories": "Today's top stories",
+    "mark_all_read": "Mark all as read",
+    "last_updated": "Updated {{time}} ago",
+    "read_count": "You've read {{count}} articles today",
+    "read_time": "{{min}} min read",
+    "today_briefing": "Today's Briefing",
+    "feed": "Feed",
+    "updating_briefing": "Updating briefing…",
+    "no_stories_yet": "No stories in this briefing yet.",
+    "read_all": "Read All",
+    "time_just_now": "just now",
+    "time_minutes_ago": "{{n}} minutes",
+    "time_hours_ago": "{{n}} hours",
+    "time_days_ago": "{{n}} days"
+  },
+  "categories": {
+    "all": "All",
+    "ai": "AI",
+    "security": "Security",
+    "cloud": "Cloud",
+    "devtools": "Dev Tools",
+    "startups": "Startups",
+    "hardware": "Hardware"
+  },
+  "actions": {
+    "search_placeholder": "Search articles…",
+    "bookmark": "Bookmark",
+    "bookmarks_empty": "No bookmarks yet. Save articles to read later.",
+    "load_more": "Load more",
+    "retry": "Retry",
+    "mark_read": "Mark as read",
+    "loading": "Loading…",
+    "refresh": "Refresh",
+    "no_articles_match": "No articles match your filters.",
+    "close": "Close",
+    "bookmarks_title": "Bookmarks",
+    "add_bookmark": "Add bookmark",
+    "remove_bookmark": "Remove bookmark",
+    "open_bookmarks": "Open bookmarks",
+    "search_articles": "Search articles",
+    "time_m_ago": "{{n}}m ago",
+    "time_h_ago": "{{n}}h ago",
+    "time_d_ago": "{{n}}d ago"
+  },
+  "errors": {
+    "fetch_failed": "Failed to fetch news",
+    "timeout": "Connection timed out",
+    "offline": "You're offline. Showing cached content."
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "notification_time": "Notification time",
+    "notification_toggle": "Morning briefing notification",
+    "categories_filter": "Display categories"
+  }
+}
