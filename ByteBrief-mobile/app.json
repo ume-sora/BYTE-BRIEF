@@ -14,15 +14,6 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "_comment_ios": "iOS config preserved for future release — restore 'ios' key when ready",
-    "_ios_bundleIdentifier": "com.yourcompany.bytebrief",
-    "_ios_buildNumber": "1",
-    "_ios_supportsTablet": false,
-    "_ios_infoPlist_notification": "毎朝のITニュースをお届けするために通知を使用します。",
-    "_ios_infoPlist_backgroundModes": [
-      "fetch",
-      "remote-notification"
-    ],
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
@@ -62,8 +53,7 @@
     "extra": {
       "eas": {
         "projectId": "7f39119b-7901-4539-94cb-aa5b5de40410"
-      },
-      "router": {}
+      }
     },
     "owner": "umeapps"
   }
