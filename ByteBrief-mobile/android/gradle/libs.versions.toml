@@ -1,0 +1,16 @@
+[versions]
+minSdk = "24"
+targetSdk = "35"
+compileSdk = "36"
+buildTools = "35.0.0"
+ndkVersion = "27.1.12297006"
+kotlin = "2.0.21"
+ksp = "2.0.21-1.0.28"
+agp = "8.9.1"
+
+[libraries]
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
