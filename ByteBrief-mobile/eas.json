@@ -4,16 +4,19 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
+      "node": "20.19.4",
       "android": { "buildType": "apk" }
       // iOS development config is preserved below when needed:
       // "ios": { "simulator": true }
     },
     "preview": {
       "distribution": "internal",
+      "node": "20.19.4",
       "android": { "buildType": "apk" }
       // "ios": { "simulator": false }
     },
     "production": {
+      "node": "20.19.4",
       "android": { "buildType": "app-bundle" }
       // iOS production config — uncomment when ready to ship:
       // "ios": { "buildType": "release" }
