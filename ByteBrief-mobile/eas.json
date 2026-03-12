@@ -6,18 +6,18 @@
       "distribution": "internal",
       "node": "20.19.4",
       "android": { "buildType": "apk" },
-      "prebuildCommand": ""
+      "prebuildCommand": "true"
     },
     "preview": {
       "distribution": "internal",
       "node": "20.19.4",
       "android": { "buildType": "apk" },
-      "prebuildCommand": ""
+      "prebuildCommand": "true"
     },
     "production": {
       "node": "20.19.4",
       "android": { "buildType": "app-bundle" },
-      "prebuildCommand": ""
+      "prebuildCommand": "true"
     }
   },
   "submit": {
