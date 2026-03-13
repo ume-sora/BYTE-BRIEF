@@ -14,7 +14,11 @@
       "android": {
         "buildType": "apk"
       },
-      "prebuildCommand": "true"
+      "prebuildCommand": "true",
+      "buildHooks": {
+        "pre_install": "eas-build-hooks/pre-install.sh",
+        "post_install": "eas-build-hooks/post-install.sh"
+      }
     },
     "production": {
       "node": "20.19.4",

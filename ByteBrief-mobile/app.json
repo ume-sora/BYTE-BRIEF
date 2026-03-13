@@ -3,7 +3,6 @@
     "name": "バイトブリーフ",
     "slug": "byte-brief",
     "version": "1.0.0",
-    "jsEngine": "jsc",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -16,7 +15,6 @@
       "**/*"
     ],
     "android": {
-      "jsEngine": "jsc",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0D0F14"
