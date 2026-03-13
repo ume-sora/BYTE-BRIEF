@@ -17,12 +17,12 @@
       "android": {
         "buildType": "apk"
       },
-      "prebuildCommand": "true"
+      "prebuildCommand": "sh scripts/fix-hermesc.sh"
     },
     "production": {
       "node": "20.19.4",
       "android": { "buildType": "app-bundle" },
-      "prebuildCommand": "true"
+      "prebuildCommand": "sh scripts/fix-hermesc.sh"
     }
   },
   "submit": {
