@@ -1,5 +1,16 @@
 {
-  "cli": { "version": ">= 10.0.0" },
+  "cli": {
+    "version": ">= 10.0.0",
+    "appVersionSource": "remote",
+    "build": {
+      "preview": {
+        "buildHook": {
+          "pre-install": "eas-build-hooks/pre-install.sh",
+          "post-install": "eas-build-hooks/post-install.sh"
+        }
+      }
+    }
+  },
   "build": {
     "development": {
       "developmentClient": true,
@@ -14,11 +25,7 @@
       "android": {
         "buildType": "apk"
       },
-      "prebuildCommand": "true",
-      "buildHooks": {
-        "pre_install": "eas-build-hooks/pre-install.sh",
-        "post_install": "eas-build-hooks/post-install.sh"
-      }
+      "prebuildCommand": "true"
     },
     "production": {
       "node": "20.19.4",
