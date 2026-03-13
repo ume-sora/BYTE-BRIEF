@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "scripts": {
+    "postinstall": "find node_modules -name hermesc -type f -exec chmod +x {} \\; 2>/dev/null || true",
     "start": "expo start",
     "dev:android": "expo start --android",
     "build:preview": "npx eas-cli build --platform android --profile preview",
