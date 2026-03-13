@@ -12,8 +12,7 @@
       "distribution": "internal",
       "node": "20.19.4",
       "android": {
-        "buildType": "apk",
-        "env": { "NODE_ENV": "production" }
+        "buildType": "apk"
       },
       "prebuildCommand": "true"
     },
