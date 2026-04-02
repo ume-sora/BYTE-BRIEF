@@ -87,7 +87,7 @@ export default function FeedScreen() {
       <View style={styles.container}>
         <Header bookmarkCount={bookmarks.size} />
         <CategoryFilter activeCategory={selectedCategory} onChange={setSelectedCategory} />
-        <View style={styles.list}>
+        <View style={styles.listLoading}>
           <SkeletonCard />
           <SkeletonCard />
           <SkeletonCard />
@@ -102,6 +102,7 @@ export default function FeedScreen() {
       {isOffline && <OfflineBanner />}
       <CategoryFilter activeCategory={selectedCategory} onChange={setSelectedCategory} />
       <FlatList
+        style={styles.list}
         data={articles}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
@@ -120,7 +121,8 @@ export default function FeedScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0D0F14' },
-  list: { padding: 16, gap: 12 },
+  list: { flex: 1 },
+  listLoading: { padding: 16, gap: 12 },
   listContent: { paddingBottom: 24 },
   separator: { height: 8 },
   empty: {

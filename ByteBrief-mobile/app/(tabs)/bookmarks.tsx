@@ -24,6 +24,7 @@ export default function BookmarksScreen() {
         <Text style={styles.empty}>{t('actions.bookmarks_empty')}</Text>
       ) : (
         <FlatList
+          style={styles.listFlex}
           data={bookmarkedList}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
@@ -53,6 +54,7 @@ export default function BookmarksScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0D0F14' },
+  listFlex: { flex: 1 },
   list: { padding: 16, paddingBottom: 24 },
   row: {
     flexDirection: 'row',

@@ -26,9 +26,17 @@ export function Header({ bookmarkCount = 0, onOpenBookmarks }: HeaderProps) {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + HEADER_TOP_EXTRA }]}>
-      <Text style={styles.title}>{t('app.name')}</Text>
+      <View style={styles.titleWrap}>
+        <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+          {t('app.name')}
+        </Text>
+      </View>
       <View style={styles.right}>
-        <Text style={styles.readCount}>
+        <Text
+          style={styles.readCount}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
           {t('briefing.read_count', { count: dailyCount })}
         </Text>
         <View style={styles.langToggle}>
@@ -73,12 +81,17 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 12,
     backgroundColor: '#0D0F14',
     borderBottomWidth: 1,
     borderBottomColor: '#1E2530',
+    width: '100%',
+  },
+  titleWrap: {
+    flexShrink: 1,
+    minWidth: 0,
+    marginRight: 8,
   },
   title: {
     fontSize: 18,
@@ -86,16 +99,23 @@ const styles = StyleSheet.create({
     color: '#00D4FF',
   },
   right: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-end',
     gap: 12,
+    minWidth: 0,
   },
   readCount: {
     fontSize: 13,
     color: '#9CA3AF',
+    flexShrink: 1,
+    minWidth: 0,
+    textAlign: 'right',
   },
   langToggle: {
     flexDirection: 'row',
+    flexShrink: 0,
     backgroundColor: '#161B22',
     borderRadius: 9999,
     padding: 2,
@@ -119,6 +139,7 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   bookmarkBtn: {
+    flexShrink: 0,
     paddingHorizontal: 8,
     paddingVertical: 6,
   },

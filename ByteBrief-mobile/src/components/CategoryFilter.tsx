@@ -1,6 +1,9 @@
 import React from 'react'
-import { ScrollView, Pressable, Text, StyleSheet } from 'react-native'
+import { View, ScrollView, Pressable, Text, StyleSheet } from 'react-native'
 import { useTranslation } from 'react-i18next'
+
+/** Fixed height so the bar is not squashed by FlatList/sibling flex layout */
+const TAB_BAR_HEIGHT = 56
 
 const CATEGORIES = [
   'general',
@@ -32,46 +35,63 @@ export function CategoryFilter({ activeCategory, onChange }: CategoryFilterProps
   const isJa = i18n.language === 'ja'
 
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.scrollContent}
-      style={styles.scroll}
-    >
-      {CATEGORIES.map((cat) => (
-        <Pressable
-          key={cat}
-          onPress={() => onChange(cat)}
-          style={[
-            styles.tab,
-            activeCategory === cat && styles.tabActive,
-          ]}
-        >
-          <Text
+    <View style={styles.bar}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        nestedScrollEnabled
+        contentContainerStyle={styles.scrollContent}
+        style={styles.scroll}
+      >
+        {CATEGORIES.map((cat) => (
+          <Pressable
+            key={cat}
+            onPress={() => onChange(cat)}
             style={[
-              styles.tabText,
-              activeCategory === cat && styles.tabTextActive,
-              !isJa && styles.tabTextUppercase,
+              styles.tab,
+              activeCategory === cat && styles.tabActive,
             ]}
           >
-            {t(CATEGORY_I18N_KEYS[cat] ?? cat)}
-          </Text>
-        </Pressable>
-      ))}
-    </ScrollView>
+            <Text
+              style={[
+                styles.tabText,
+                activeCategory === cat && styles.tabTextActive,
+                !isJa && styles.tabTextUppercase,
+              ]}
+            >
+              {t(CATEGORY_I18N_KEYS[cat] ?? cat)}
+            </Text>
+          </Pressable>
+        ))}
+      </ScrollView>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
-  scroll: { flexGrow: 0 },
+  bar: {
+    height: TAB_BAR_HEIGHT,
+    flexShrink: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: '#1E2530',
+    backgroundColor: '#0D0F14',
+  },
+  scroll: {
+    flexGrow: 0,
+    height: TAB_BAR_HEIGHT,
+  },
   scrollContent: {
     flexDirection: 'row',
-    paddingVertical: 12,
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    minHeight: TAB_BAR_HEIGHT,
     gap: 0,
   },
   tab: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
+    flexShrink: 0,
+    justifyContent: 'center',
   },
   tabActive: {
     backgroundColor: '#00D4FF',
