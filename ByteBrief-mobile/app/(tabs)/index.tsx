@@ -37,7 +37,7 @@ export default function BriefingScreen() {
   const handleArticlePress = useCallback(
     (id: string, url: string) => {
       markAsRead(id)
-      increment()
+      increment(id)
       router.push({ pathname: '/article', params: { url } })
     },
     [markAsRead, increment, router]

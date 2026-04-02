@@ -7,20 +7,34 @@ function todayKey() {
   return new Date().toDateString()
 }
 
-async function loadProgress(): Promise<{ date: string; count: number }> {
+type StoredProgress = { date: string; articleIds: string[] }
+
+async function loadProgress(): Promise<StoredProgress> {
   try {
     const raw = await AsyncStorage.getItem(STORAGE_KEY)
-    if (!raw) return { date: '', count: 0 }
-    const { date, count } = JSON.parse(raw) as { date?: string; count?: number }
-    return { date: date ?? '', count: typeof count === 'number' ? count : 0 }
+    if (!raw) return { date: '', articleIds: [] }
+    const parsed = JSON.parse(raw) as {
+      date?: string
+      count?: number
+      articleIds?: unknown
+    }
+    const date = parsed.date ?? ''
+    if (
+      Array.isArray(parsed.articleIds) &&
+      parsed.articleIds.every((x) => typeof x === 'string')
+    ) {
+      return { date, articleIds: parsed.articleIds }
+    }
+    // Legacy { date, count } — switch to per-article tracking (no reliable id list)
+    return { date, articleIds: [] }
   } catch {
-    return { date: '', count: 0 }
+    return { date: '', articleIds: [] }
   }
 }
 
-async function saveProgress(date: string, count: number) {
+async function saveProgress(date: string, articleIds: string[]) {
   try {
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ date, count }))
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ date, articleIds }))
   } catch {
     // ignore
   }
@@ -42,7 +56,8 @@ interface ReadingProgressState {
   dailyCount: number
   hydrated: boolean
   hydrate: () => Promise<void>
-  increment: () => Promise<void>
+  /** Counts each article at most once per calendar day (local). */
+  increment: (articleId: string) => Promise<void>
 }
 
 export const useReadingProgressStore = create<ReadingProgressState>((set) => ({
@@ -52,22 +67,24 @@ export const useReadingProgressStore = create<ReadingProgressState>((set) => ({
   hydrate: () =>
     runStorageExclusive(async () => {
       const key = todayKey()
-      const { date, count } = await loadProgress()
+      const { date, articleIds } = await loadProgress()
       if (date !== key) {
-        await saveProgress(key, 0)
+        await saveProgress(key, [])
         set({ dailyCount: 0, hydrated: true })
       } else {
-        set({ dailyCount: count, hydrated: true })
+        set({ dailyCount: articleIds.length, hydrated: true })
       }
     }),
 
-  increment: () =>
+  increment: (articleId: string) =>
     runStorageExclusive(async () => {
+      if (!articleId) return
       const key = todayKey()
-      const { date, count } = await loadProgress()
-      const base = date === key ? count : 0
-      const next = base + 1
-      await saveProgress(key, next)
-      set({ dailyCount: next, hydrated: true })
+      const { date, articleIds } = await loadProgress()
+      const ids = date === key ? [...articleIds] : []
+      if (ids.includes(articleId)) return
+      ids.push(articleId)
+      await saveProgress(key, ids)
+      set({ dailyCount: ids.length, hydrated: true })
     }),
 }))

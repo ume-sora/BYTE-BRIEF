@@ -66,7 +66,10 @@
     "search_articles": "Search articles",
     "time_m_ago": "{{n}}m ago",
     "time_h_ago": "{{n}}h ago",
-    "time_d_ago": "{{n}}d ago"
+    "time_d_ago": "{{n}}d ago",
+    "bookmarks_sort_newest": "Newest first",
+    "bookmarks_sort_oldest": "Oldest first",
+    "bookmarks_sort_gojuon_asc": "Gojuon order"
   },
   "errors": {
     "fetch_failed": "Failed to fetch news",

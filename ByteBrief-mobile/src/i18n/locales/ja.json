@@ -66,7 +66,10 @@
     "search_articles": "記事を検索",
     "time_m_ago": "{{n}}分前",
     "time_h_ago": "{{n}}時間前",
-    "time_d_ago": "{{n}}日前"
+    "time_d_ago": "{{n}}日前",
+    "bookmarks_sort_newest": "新しい順",
+    "bookmarks_sort_oldest": "古い順",
+    "bookmarks_sort_gojuon_asc": "五十音順"
   },
   "errors": {
     "fetch_failed": "ニュースの取得に失敗しました",

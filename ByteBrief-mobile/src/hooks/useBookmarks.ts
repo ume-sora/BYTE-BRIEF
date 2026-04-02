@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import type { Category } from '@/types/news'
 
 const STORAGE_KEY_IDS = 'byte-brief-bookmarks'
 const STORAGE_KEY_DETAILS = 'byte-brief-bookmarks-details'
@@ -8,6 +9,10 @@ export interface BookmarkDetails {
   title: string
   url: string
   source?: string
+  category?: Category
+  thumbnailUrl?: string
+  /** Unix ms when the bookmark is registered (local time). */
+  savedAt?: number
 }
 
 async function loadIds(): Promise<string[]> {
@@ -73,7 +78,14 @@ export function useBookmarks() {
         return prev.filter((x) => x !== id)
       }
       if (entryDetails) {
-        setDetails((d) => ({ ...d, [id]: entryDetails }))
+        setDetails((d) => ({
+          ...d,
+          [id]: {
+            ...entryDetails,
+            // If caller doesn't provide savedAt, treat this moment as registration time.
+            savedAt: typeof entryDetails.savedAt === 'number' ? entryDetails.savedAt : Date.now(),
+          },
+        }))
       }
       return [...prev, id]
     })

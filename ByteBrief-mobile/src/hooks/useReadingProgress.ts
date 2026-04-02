@@ -10,9 +10,12 @@ export function useReadingProgress() {
     void hydrate()
   }, [hydrate])
 
-  const increment = useCallback(() => {
-    void incrementFromStore()
-  }, [incrementFromStore])
+  const increment = useCallback(
+    (articleId: string) => {
+      void incrementFromStore(articleId)
+    },
+    [incrementFromStore]
+  )
 
   return { dailyCount, increment }
 }

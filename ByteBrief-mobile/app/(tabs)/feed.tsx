@@ -15,6 +15,7 @@ import { SkeletonCard } from '@/components/SkeletonCard'
 import { OfflineBanner } from '@/components/OfflineBanner'
 import { useNewsStore } from '@/store/newsStore'
 import { getArticleSourceName } from '@/utils/articleSource'
+import type { Category } from '@/types/news'
 
 export default function FeedScreen() {
   const { t } = useTranslation()
@@ -50,14 +51,14 @@ export default function FeedScreen() {
   const handleRead = useCallback(
     (id: string, url: string) => {
       markAsRead(id)
-      increment()
+      increment(id)
       router.push({ pathname: '/article', params: { url } })
     },
     [markAsRead, increment, router]
   )
 
   const handleBookmark = useCallback(
-    (id: string, details: { title: string; url: string; source?: string }) => {
+    (id: string, details: { title: string; url: string; source?: string; category?: Category }) => {
       toggleBookmark(id, details)
     },
     [toggleBookmark]
@@ -75,6 +76,7 @@ export default function FeedScreen() {
             title: item.title,
             url: item.url,
             source: getArticleSourceName(item),
+            category: item.category,
           })
         }
       />
