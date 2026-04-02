@@ -1,5 +1,6 @@
 import React from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useReadingProgress } from '@/hooks/useReadingProgress'
@@ -11,7 +12,10 @@ interface HeaderProps {
   onOpenBookmarks?: () => void
 }
 
+const HEADER_TOP_EXTRA = 10
+
 export function Header({ bookmarkCount = 0, onOpenBookmarks }: HeaderProps) {
+  const insets = useSafeAreaInsets()
   const { t, i18n } = useTranslation()
   const { dailyCount } = useReadingProgress()
 
@@ -21,7 +25,7 @@ export function Header({ bookmarkCount = 0, onOpenBookmarks }: HeaderProps) {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top + HEADER_TOP_EXTRA }]}>
       <Text style={styles.title}>{t('app.name')}</Text>
       <View style={styles.right}>
         <Text style={styles.readCount}>
@@ -71,7 +75,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingBottom: 12,
     backgroundColor: '#0D0F14',
     borderBottomWidth: 1,
     borderBottomColor: '#1E2530',

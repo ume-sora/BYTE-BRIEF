@@ -3,16 +3,13 @@ import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { useTranslation } from 'react-i18next'
 import { formatReadTime } from '@/utils/formatDate'
 import type { Article } from '@/types/news'
+import { getArticleSourceName } from '@/utils/articleSource'
 
 interface BriefingCardProps {
   article: Article
   rank: number
   isRead: boolean
   onPress: () => void
-}
-
-function sourceName(source: Article['source']): string {
-  return typeof source === 'string' ? source : source.name
 }
 
 export function BriefingCard({
@@ -33,7 +30,7 @@ export function BriefingCard({
       <View style={styles.content}>
         <View style={styles.meta}>
           <Text style={styles.source}>
-            {sourceName(article.source)} · {formatReadTime(article.readTime ?? 1, locale)}
+            {getArticleSourceName(article)} · {formatReadTime(article.readTime ?? 1, locale)}
           </Text>
         </View>
         <Text style={styles.title} numberOfLines={2}>
@@ -66,8 +63,8 @@ const styles = StyleSheet.create({
   rank: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#00D4FF',
-    opacity: 0.15,
+    color: '#00B8E6',
+    opacity: 0.42,
     marginRight: 12,
     minWidth: 28,
   },

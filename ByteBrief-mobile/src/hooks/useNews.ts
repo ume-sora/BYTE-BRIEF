@@ -1,9 +1,11 @@
 import { useMemo, useCallback } from 'react'
+import { Platform } from 'react-native'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useNewsStore } from '@/store/newsStore'
 import { fetchAllFeeds } from '@/api/rssParser'
 import type { Article } from '@/types/news'
+import { getArticleSourceName } from '@/utils/articleSource'
 
 function toNormalizedCategory(selected: string): string {
   if (selected === 'general') return 'general'
@@ -25,10 +27,16 @@ export function useNews(options?: { categoryFilter?: string }) {
 
   const query = useQuery({
     queryKey: ['news', language],
-    queryFn: () => fetchAllFeeds({ language, useCorsProxy: false }),
+    queryFn: () =>
+      fetchAllFeeds({ language, useCorsProxy: Platform.OS === 'web' }),
     staleTime: 30 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
     retry: 2,
+    /** 永続キャッシュが空配列だと isLoading が false のまま再取得されないのを防ぐ */
+    refetchOnMount: (q) => {
+      const rows = q.state.data as Article[] | undefined
+      return !rows || rows.length === 0 ? 'always' : true
+    },
   })
 
   const rawArticles = query.data ?? []
@@ -41,13 +49,11 @@ export function useNews(options?: { categoryFilter?: string }) {
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase()
-      const sourceName = (a: Article) =>
-        typeof a.source === 'string' ? a.source : a.source.name
       list = list.filter(
         (a) =>
           a.title.toLowerCase().includes(q) ||
           (a.description?.toLowerCase().includes(q) ?? false) ||
-          sourceName(a).toLowerCase().includes(q)
+          getArticleSourceName(a).toLowerCase().includes(q)
       )
     }
     return list
@@ -61,13 +67,17 @@ export function useNews(options?: { categoryFilter?: string }) {
       }
     : null
 
+  const listLoading =
+    query.isPending || (query.isFetching && rawArticles.length === 0)
+
   return {
     articles: filteredArticles,
     rawArticles,
     selectedCategory,
     searchQuery,
     readIds,
-    loading: query.isLoading,
+    loading: listLoading,
+    isFetching: query.isFetching,
     error,
     setSelectedCategory,
     setSearchQuery,

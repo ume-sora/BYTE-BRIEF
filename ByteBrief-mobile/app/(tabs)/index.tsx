@@ -1,6 +1,6 @@
-import { useCallback } from 'react'
-import { View, Text, ScrollView, Pressable, StyleSheet, RefreshControl } from 'react-native'
-import { useRouter } from 'expo-router'
+import { useCallback, useRef, useState } from 'react'
+import { View, Text, ScrollView, StyleSheet, RefreshControl } from 'react-native'
+import { useRouter, useFocusEffect } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import { useNews } from '@/hooks/useNews'
 import { useReadingProgress } from '@/hooks/useReadingProgress'
@@ -8,18 +8,31 @@ import { useBookmarks } from '@/hooks/useBookmarks'
 import { Header } from '@/components/Header'
 import { BriefingCard } from '@/components/BriefingCard'
 import { SkeletonCard } from '@/components/SkeletonCard'
+import { periodFromHour, randomGreetingParts } from '@/utils/briefingGreeting'
 
 export default function BriefingScreen() {
   const { t, i18n } = useTranslation()
   const router = useRouter()
-  const { articles, loading, refresh, readIds, markAsRead } = useNews()
+  const { articles, loading, isFetching, refresh, readIds, markAsRead } = useNews()
   const { increment } = useReadingProgress()
   const { bookmarks } = useBookmarks()
   const top5 = articles.slice(0, 5)
-  const greeting =
-    new Date().getHours() < 12
-      ? t('briefing.greeting_morning')
-      : t('briefing.greeting_afternoon')
+  const hour = new Date().getHours()
+  const period = periodFromHour(hour)
+  const [greetingParts, setGreetingParts] = useState(() =>
+    randomGreetingParts(t, period)
+  )
+  const briefingFocusOnce = useRef(false)
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!briefingFocusOnce.current) {
+        briefingFocusOnce.current = true
+        return
+      }
+      setGreetingParts(randomGreetingParts(t, period))
+    }, [t, period, i18n.language])
+  )
 
   const handleArticlePress = useCallback(
     (id: string, url: string) => {
@@ -38,7 +51,7 @@ export default function BriefingScreen() {
         contentContainerStyle={styles.scrollContent}
         refreshControl={
           <RefreshControl
-            refreshing={loading}
+            refreshing={isFetching}
             onRefresh={refresh}
             tintColor="#00D4FF"
           />
@@ -46,7 +59,11 @@ export default function BriefingScreen() {
       >
         <View style={styles.hero}>
           <Text style={styles.heroLabel}>{t('app.name')}</Text>
-          <Text style={styles.heroTitle}>{greeting}</Text>
+          <Text style={styles.heroTitle}>
+            {greetingParts.salutation}
+            {'\n'}
+            {greetingParts.body}
+          </Text>
           <Text style={styles.heroDate}>
             {new Date().toLocaleDateString(i18n.language === 'ja' ? 'ja-JP' : 'en-US', {
               weekday: 'long',
@@ -105,6 +122,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#F9FAFB',
     marginTop: 8,
+    lineHeight: 28,
   },
   heroDate: {
     fontSize: 18,

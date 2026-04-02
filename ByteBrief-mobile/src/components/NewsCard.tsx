@@ -1,9 +1,9 @@
 import React, { memo } from 'react'
 import { View, Text, Image, Pressable, StyleSheet } from 'react-native'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { Feather } from '@expo/vector-icons'
 import type { Article } from '@/types/news'
 import { formatRelativeTime, formatReadTime } from '@/utils/formatDate'
+import { getArticleSourceDisplay } from '@/utils/articleSource'
 import { useTranslation } from 'react-i18next'
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -18,7 +18,6 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 interface NewsCardProps {
   article: Article
-  index?: number
   isRead: boolean
   isBookmarked: boolean
   onPress: () => void
@@ -27,7 +26,6 @@ interface NewsCardProps {
 
 function NewsCard({
   article,
-  index = 0,
   isRead,
   isBookmarked,
   onPress,
@@ -36,11 +34,10 @@ function NewsCard({
   const { t, i18n } = useTranslation()
   const locale = i18n.language === 'ja' ? 'ja' : 'en'
   const badgeColor = CATEGORY_COLORS[article.category] ?? CATEGORY_COLORS.general
+  const { name: sourceName, color: sourceColor } = getArticleSourceDisplay(article)
 
   return (
-    <Animated.View
-      entering={FadeInDown.delay(index * 70).springify()}
-    >
+    <View>
       <Pressable
         style={({ pressed }) => [
           styles.card,
@@ -83,10 +80,10 @@ function NewsCard({
             <View
               style={[
                 styles.sourceDot,
-                { backgroundColor: article.source.color },
+                { backgroundColor: sourceColor },
               ]}
             />
-            <Text style={styles.meta}>{article.source.name}</Text>
+            <Text style={styles.meta}>{sourceName}</Text>
             <Text style={styles.metaDivider}>·</Text>
             <Text style={styles.meta}>
               {formatRelativeTime(article.publishedAt, locale)}
@@ -98,7 +95,7 @@ function NewsCard({
           </View>
         </View>
       </Pressable>
-    </Animated.View>
+    </View>
   )
 }
 

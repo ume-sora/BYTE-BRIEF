@@ -27,6 +27,30 @@ function extractImage(item: any): string | undefined {
   )
 }
 
+/** Atom / 一部 RSS で link が配列・オブジェクトになるため正規化 */
+function extractItemLink(item: any): string {
+  const link = item.link
+  if (typeof link === 'string') return link.trim()
+  if (link?.['@_href']) return String(link['@_href']).trim()
+  if (link?.['#text']) return String(link['#text']).trim()
+  if (Array.isArray(link)) {
+    for (const entry of link) {
+      const u = extractItemLink({ link: entry })
+      if (u) return u
+    }
+  }
+  const guid = item.guid
+  if (typeof guid === 'string') return guid.trim()
+  if (guid?.['#text']) return String(guid['#text']).trim()
+  if (guid?.['@_isPermaLink'] !== undefined && guid?.['#text']) {
+    return String(guid['#text']).trim()
+  }
+  const id = item.id
+  if (typeof id === 'string') return id.trim()
+  if (id?.['#text']) return String(id['#text']).trim()
+  return ''
+}
+
 function parseItems(parsed: any, source: FeedSource): Article[] {
   const channel = parsed?.rss?.channel || parsed?.feed
   if (!channel) return []
@@ -34,7 +58,7 @@ function parseItems(parsed: any, source: FeedSource): Article[] {
   const rawItems = channel.item || channel.entry || []
   const items = Array.isArray(rawItems) ? rawItems : [rawItems]
 
-  return items.map((item: any) => {
+  return items.map((item: any, index: number) => {
     const title = item.title?.['#text'] || item.title || ''
     const description =
       item.description?.['#text'] ||
@@ -42,12 +66,19 @@ function parseItems(parsed: any, source: FeedSource): Article[] {
       item['content:encoded'] ||
       item.summary ||
       ''
-    const link = item.link?.['@_href'] || item.link || item.guid || ''
+    const link = extractItemLink(item)
     const pubDate = item.pubDate || item.updated || item.published || ''
     const category = detectCategory(`${title} ${description}`)
 
+    const guidRaw = item.guid?.['#text'] ?? item.guid
+    const idRaw =
+      (typeof guidRaw === 'string' ? guidRaw : guidRaw?.['#text']) ||
+      (typeof item.id === 'string' ? item.id : item.id?.['#text']) ||
+      link
+    const stableId = String(idRaw ?? '').trim() || `${source.id}-${index}`
+
     return {
-      id: item.guid?.['#text'] || item.guid || item.id || link,
+      id: stableId,
       title: title.trim(),
       description: description.replace(/<[^>]*>/g, '').slice(0, 200).trim(),
       url: link.trim(),
@@ -65,18 +96,37 @@ function parseItems(parsed: any, source: FeedSource): Article[] {
   })
 }
 
-async function fetchFeed(source: FeedSource): Promise<Article[]> {
+function resolveFeedUrl(feedUrl: string, useCorsProxy: boolean): string {
+  if (!useCorsProxy) return feedUrl
+  return `https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`
+}
+
+const FEED_FETCH_MS = 15000
+
+async function fetchFeed(source: FeedSource, useCorsProxy: boolean): Promise<Article[]> {
+  const url = resolveFeedUrl(source.url, useCorsProxy)
+  const ctrl = new AbortController()
+  const timeoutId = setTimeout(() => ctrl.abort(), FEED_FETCH_MS)
   try {
-    const res = await fetch(source.url, {
-      headers: { Accept: 'application/rss+xml, application/xml, text/xml' },
-      signal: AbortSignal.timeout(8000),
+    const res = await fetch(url, {
+      headers: {
+        Accept: 'application/rss+xml, application/xml, text/xml',
+        'User-Agent': 'ByteBrief/1.0 (compatible; RSS reader)',
+      },
+      signal: ctrl.signal,
     })
+    if (!res.ok) {
+      console.warn(`[RSS] HTTP ${res.status} for ${source.name}`)
+      return []
+    }
     const text = await res.text()
     const parsed = xmlParser.parse(text)
     return parseItems(parsed, source)
   } catch (err) {
     console.warn(`[RSS] Failed to fetch ${source.name}:`, err)
     return []
+  } finally {
+    clearTimeout(timeoutId)
   }
 }
 
@@ -84,12 +134,14 @@ export async function fetchAllFeeds(options: {
   language?: 'ja' | 'en' | 'all'
   useCorsProxy?: boolean
 } = {}): Promise<Article[]> {
-  const { language = 'all' } = options
+  const { language = 'all', useCorsProxy = false } = options
 
   const sources =
     language === 'all' ? RSS_SOURCES : RSS_SOURCES.filter((s) => s.language === language)
 
-  const results = await Promise.allSettled(sources.map((source) => fetchFeed(source)))
+  const results = await Promise.allSettled(
+    sources.map((source) => fetchFeed(source, useCorsProxy))
+  )
 
   const articles = results
     .filter((r): r is PromiseFulfilledResult<Article[]> => r.status === 'fulfilled')

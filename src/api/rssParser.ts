@@ -68,18 +68,30 @@ function normalizeItem(
   }
 }
 
+const FEED_FETCH_MS = 8000
+
+function createAbortSignalWithTimeout(ms: number): { signal: AbortSignal; cancel: () => void } {
+  const ctrl = new AbortController()
+  const timeoutId = setTimeout(() => ctrl.abort(), ms)
+  return {
+    signal: ctrl.signal,
+    cancel: () => clearTimeout(timeoutId),
+  }
+}
+
 // Fetch a single RSS feed with error isolation
 async function fetchFeed(source: FeedSource, useCorsProxy: boolean): Promise<Article[]> {
+  const { signal, cancel } = createAbortSignalWithTimeout(FEED_FETCH_MS)
   try {
     const url = buildUrl(source.url, useCorsProxy)
     let feedText: string
 
     if (useCorsProxy) {
-      const res = await fetch(url, { signal: AbortSignal.timeout(8000) })
+      const res = await fetch(url, { signal })
       const json = (await res.json()) as { contents?: string }
       feedText = json.contents ?? ''
     } else {
-      const res = await fetch(url, { signal: AbortSignal.timeout(8000) })
+      const res = await fetch(url, { signal })
       feedText = await res.text()
     }
 
@@ -90,6 +102,8 @@ async function fetchFeed(source: FeedSource, useCorsProxy: boolean): Promise<Art
   } catch (err) {
     console.warn(`[RSS] Failed to fetch ${source.name}:`, err)
     return []
+  } finally {
+    cancel()
   }
 }
 

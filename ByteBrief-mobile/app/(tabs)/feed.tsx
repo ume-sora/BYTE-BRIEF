@@ -7,12 +7,14 @@ import { useTranslation } from 'react-i18next'
 import { useBookmarks } from '@/hooks/useBookmarks'
 import NetInfo from '@react-native-community/netinfo'
 import { useState, useEffect } from 'react'
+import { netStateLooksOffline } from '@/utils/netConnectivity'
 import { Header } from '@/components/Header'
 import { CategoryFilter } from '@/components/CategoryFilter'
 import NewsCard from '@/components/NewsCard'
 import { SkeletonCard } from '@/components/SkeletonCard'
 import { OfflineBanner } from '@/components/OfflineBanner'
 import { useNewsStore } from '@/store/newsStore'
+import { getArticleSourceName } from '@/utils/articleSource'
 
 export default function FeedScreen() {
   const { t } = useTranslation()
@@ -21,6 +23,7 @@ export default function FeedScreen() {
   const {
     articles,
     loading,
+    isFetching,
     refresh,
     readIds,
     markAsRead,
@@ -31,10 +34,17 @@ export default function FeedScreen() {
   const [isOffline, setIsOffline] = useState(false)
 
   useEffect(() => {
-    const sub = NetInfo.addEventListener((state) => {
-      setIsOffline(state.isConnected === false)
+    let cancelled = false
+    NetInfo.fetch().then((state) => {
+      if (!cancelled) setIsOffline(netStateLooksOffline(state))
     })
-    return () => sub()
+    const sub = NetInfo.addEventListener((state) => {
+      setIsOffline(netStateLooksOffline(state))
+    })
+    return () => {
+      cancelled = true
+      sub()
+    }
   }, [])
 
   const handleRead = useCallback(
@@ -54,10 +64,9 @@ export default function FeedScreen() {
   )
 
   const renderItem = useCallback(
-    ({ item, index }: { item: (typeof articles)[0]; index: number }) => (
+    ({ item }: { item: (typeof articles)[0]; index: number }) => (
       <NewsCard
         article={item}
-        index={index}
         isRead={readIds.has(item.id)}
         isBookmarked={isBookmarked(item.id)}
         onPress={() => handleRead(item.id, item.url)}
@@ -65,7 +74,7 @@ export default function FeedScreen() {
           handleBookmark(item.id, {
             title: item.title,
             url: item.url,
-            source: item.source.name,
+            source: getArticleSourceName(item),
           })
         }
       />
@@ -99,7 +108,7 @@ export default function FeedScreen() {
         contentContainerStyle={styles.listContent}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         refreshControl={
-          <RefreshControl refreshing={loading} onRefresh={refresh} tintColor="#00D4FF" />
+          <RefreshControl refreshing={isFetching} onRefresh={refresh} tintColor="#00D4FF" />
         }
         ListEmptyComponent={
           <Text style={styles.empty}>{t('actions.no_articles_match')}</Text>

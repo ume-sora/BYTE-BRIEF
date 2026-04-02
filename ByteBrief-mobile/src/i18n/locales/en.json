@@ -4,8 +4,26 @@
     "tagline": "Today's IT, in 5 minutes"
   },
   "briefing": {
-    "greeting_morning": "Good morning. Here's what matters in tech today.",
-    "greeting_afternoon": "Good afternoon. Here's the latest in tech news.",
+    "greeting_morning_salutation": "Good morning.",
+    "greeting_morning_lines": [
+      "Here's what matters in tech today.",
+      "Catch up on the topics worth your time.",
+      "A quick scan of today's highlights."
+    ],
+    "greeting_afternoon_salutation": "Good afternoon.",
+    "greeting_afternoon_lines": [
+      "Here's the latest in tech news.",
+      "Catch up on what's moving in tech.",
+      "Scan the stories making waves right now.",
+      "Stay current with today's tech pulse."
+    ],
+    "greeting_evening_salutation": "Good evening.",
+    "greeting_evening_lines": [
+      "Here's the latest in tech news.",
+      "Wind down with today's tech headlines.",
+      "Catch up before you sign off.",
+      "A calm read through today's tech stories."
+    ],
     "top_stories": "Today's top stories",
     "mark_all_read": "Mark all as read",
     "last_updated": "Updated {{time}} ago",

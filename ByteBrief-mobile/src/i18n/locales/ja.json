@@ -1,11 +1,29 @@
 {
   "app": {
-    "name": "バイトブリーフ",
+    "name": "BYTE-BRIEF",
     "tagline": "今日のIT、5分で把握"
   },
   "briefing": {
-    "greeting_morning": "おはようございます。今日のテックニュースをお届けします。",
-    "greeting_afternoon": "こんにちは。最新のITニュースをチェックしましょう。",
+    "greeting_morning_salutation": "おはようございます。",
+    "greeting_morning_lines": [
+      "今日のテックニュースをお届けします。",
+      "気になるトピックをまとめて確認しましょう。",
+      "さっと読める今日のハイライトです。"
+    ],
+    "greeting_afternoon_salutation": "こんにちは。",
+    "greeting_afternoon_lines": [
+      "最新のITニュースをチェックしましょう。",
+      "トレンドをキャッチアップしましょう。",
+      "いま話題の技術ニュースを押さえましょう。",
+      "今日の動きを素早く確認しましょう。"
+    ],
+    "greeting_evening_salutation": "こんばんは。",
+    "greeting_evening_lines": [
+      "最新のITニュースをチェックしましょう。",
+      "今日一日のニュースを振り返りましょう。",
+      "締めくくりにいま注目の話題を。",
+      "落ち着いて今日のITトピックをどうぞ。"
+    ],
     "top_stories": "本日のトップニュース",
     "mark_all_read": "すべて既読にする",
     "last_updated": "{{time}}前に更新",

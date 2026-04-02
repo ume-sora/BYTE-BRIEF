@@ -1,12 +1,14 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Stack, useRouter } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import * as Notifications from 'expo-notifications'
-import { QueryClient } from '@tanstack/react-query'
+import NetInfo from '@react-native-community/netinfo'
+import { QueryClient, useQueryClient } from '@tanstack/react-query'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { netStateLooksOffline } from '../src/utils/netConnectivity'
 import * as SplashScreen from 'expo-splash-screen'
 import {
   requestNotificationPermission,
@@ -31,10 +33,30 @@ const queryClient = new QueryClient({
   },
 })
 
+const QUERY_CACHE_STORAGE_KEY = 'BYTEBRIEF_QUERY_CACHE_V3'
+
 const asyncStoragePersister = createAsyncStoragePersister({
   storage: AsyncStorage,
-  key: 'BYTEBRIEF_QUERY_CACHE',
+  key: QUERY_CACHE_STORAGE_KEY,
 })
+
+function NetworkNewsRefetch() {
+  const queryClient = useQueryClient()
+  const wasOffline = useRef(false)
+
+  useEffect(() => {
+    const sub = NetInfo.addEventListener((state) => {
+      const offline = netStateLooksOffline(state)
+      if (wasOffline.current && !offline) {
+        queryClient.invalidateQueries({ queryKey: ['news'] })
+      }
+      wasOffline.current = offline
+    })
+    return () => sub()
+  }, [queryClient])
+
+  return null
+}
 
 export default function RootLayout() {
   const router = useRouter()
@@ -90,8 +112,12 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <PersistQueryClientProvider
         client={queryClient}
-        persistOptions={{ persister: asyncStoragePersister }}
+        persistOptions={{
+          persister: asyncStoragePersister,
+          maxAge: 1000 * 60 * 60 * 12,
+        }}
       >
+        <NetworkNewsRefetch />
         <StatusBar style="light" />
         <Stack
           screenOptions={{
