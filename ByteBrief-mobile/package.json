@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "scripts": {
-    "postinstall": "find node_modules -name hermesc -type f -exec chmod +x {} \\; 2>/dev/null || true",
+    "postinstall": "node -e \"const{execSync}=require('child_process');const fs=require('fs');const path='node_modules/react-native/sdks/hermesc/linux64-bin/hermesc';if(process.platform==='linux'&&!fs.existsSync(path)){fs.mkdirSync(require('path').dirname(path),{recursive:true});execSync('curl -L https://github.com/nicolo-ribaudo/hermes-build/releases/download/hermes-2024060900/hermesc-linux64.tar.gz -o /tmp/h.tar.gz && tar -xzf /tmp/h.tar.gz -C /tmp && cp /tmp/hermesc '+path+' && chmod +x '+path);console.log('hermesc installed')}\" 2>/dev/null || true",
     "start": "expo start",
     "dev:android": "expo start --android",
     "build:preview": "npx eas-cli build --platform android --profile preview",
