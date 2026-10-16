@@ -7,7 +7,8 @@ module.exports = function (api) {
         'module-resolver',
         {
           root: ['.'],
-          alias: { '@': './src' },
+          // Avoid interfering with scoped packages like "@babel/*".
+          alias: { '@/': './src/' },
         },
       ],
       'react-native-reanimated/plugin',
