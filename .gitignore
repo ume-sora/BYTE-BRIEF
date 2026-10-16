@@ -45,3 +45,6 @@ Thumbs.db
 # Test coverage
 coverage/
 google-play-service-account.json
+
+# Local-only nested repo (policy is served from privacy-policy/)
+bytebrief-privacy/
