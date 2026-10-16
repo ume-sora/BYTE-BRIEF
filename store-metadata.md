@@ -163,6 +163,6 @@ All articles are copyright of their respective publishers.
 
 | 種類 | ファイル | サイズ |
 |---|---|---|
-| アプリアイコン | ByteBrief-mobile/assets/icon.png（Play Console には 512×512 に縮小して登録） | 1024×1024 |
+| アプリアイコン | ByteBrief-mobile/store-assets/icon-512.png（32ビット PNG） | 512×512 |
 | フィーチャーグラフィック | ByteBrief-mobile/store-assets/feature-graphic.png | 1024×500 |
 | スマホのスクリーンショット | ByteBrief-mobile/store-assets/screenshots/01〜04 | 1080×1920 |
