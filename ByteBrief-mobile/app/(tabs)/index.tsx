@@ -13,10 +13,11 @@ import { periodFromHour, randomGreetingParts } from '@/utils/briefingGreeting'
 export default function BriefingScreen() {
   const { t, i18n } = useTranslation()
   const router = useRouter()
-  const { articles, loading, isFetching, refresh, readIds, markAsRead } = useNews()
+  // フィード画面のカテゴリ・検索の絞り込みはブリーフィングに反映しない
+  const { rawArticles, loading, isFetching, refresh, readIds, markAsRead } = useNews()
   const { increment } = useReadingProgress()
   const { bookmarks } = useBookmarks()
-  const top5 = articles.slice(0, 5)
+  const top5 = rawArticles.slice(0, 5)
   const hour = new Date().getHours()
   const period = periodFromHour(hour)
   const [greetingParts, setGreetingParts] = useState(() =>
