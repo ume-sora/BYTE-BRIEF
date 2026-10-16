@@ -1,7 +1,10 @@
 import { Tabs } from 'expo-router'
 import { Feather } from '@expo/vector-icons'
+import { useTranslation } from 'react-i18next'
 
 export default function TabsLayout() {
+  const { t } = useTranslation()
+
   return (
     <Tabs
       screenOptions={{
@@ -17,7 +20,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'ブリーフィング',
+          title: t('tabs.briefing'),
           tabBarIcon: ({ color, size }) => (
             <Feather name="sun" size={size} color={color} />
           ),
@@ -26,7 +29,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="feed"
         options={{
-          title: 'フィード',
+          title: t('tabs.feed'),
           tabBarIcon: ({ color, size }) => (
             <Feather name="rss" size={size} color={color} />
           ),
@@ -35,7 +38,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="bookmarks"
         options={{
-          title: '保存済み',
+          title: t('tabs.bookmarks'),
           tabBarIcon: ({ color, size }) => (
             <Feather name="bookmark" size={size} color={color} />
           ),
@@ -44,7 +47,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: '設定',
+          title: t('tabs.settings'),
           tabBarIcon: ({ color, size }) => (
             <Feather name="settings" size={size} color={color} />
           ),

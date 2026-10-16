@@ -77,6 +77,12 @@
     "timeout": "接続がタイムアウトしました",
     "offline": "オフラインです。キャッシュを表示しています"
   },
+  "tabs": {
+    "briefing": "ブリーフィング",
+    "feed": "フィード",
+    "bookmarks": "保存済み",
+    "settings": "設定"
+  },
   "settings": {
     "title": "設定",
     "language": "言語",

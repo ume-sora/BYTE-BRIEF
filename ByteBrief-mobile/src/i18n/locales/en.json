@@ -77,6 +77,12 @@
     "timeout": "Connection timed out",
     "offline": "You're offline. Showing cached content."
   },
+  "tabs": {
+    "briefing": "Briefing",
+    "feed": "Feed",
+    "bookmarks": "Saved",
+    "settings": "Settings"
+  },
   "settings": {
     "title": "Settings",
     "language": "Language",
