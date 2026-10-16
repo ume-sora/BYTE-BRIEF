@@ -7,6 +7,45 @@ const xmlParser = new XMLParser({
   attributeNamePrefix: '@_',
 })
 
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  nbsp: ' ',
+  hellip: '…',
+  mdash: '—',
+  ndash: '–',
+  lsquo: '‘',
+  rsquo: '’',
+  ldquo: '“',
+  rdquo: '”',
+}
+
+/** RSS の見出し・本文に残る HTML エンティティ（&#8217; / &amp; など）を文字に戻す */
+function decodeEntities(text: string): string {
+  // &amp;#8217; のような二重エンコードにも対応するため2回まで処理する
+  let result = text
+  for (let i = 0; i < 2 && result.includes('&'); i++) {
+    result = result.replace(/&(#x[0-9a-f]+|#[0-9]+|[a-z]+);/gi, (match, code: string) => {
+      if (code[0] === '#') {
+        const point =
+          code[1] === 'x' || code[1] === 'X' ? parseInt(code.slice(2), 16) : parseInt(code.slice(1), 10)
+        return Number.isFinite(point) && point <= 0x10ffff ? String.fromCodePoint(point) : match
+      }
+      return NAMED_ENTITIES[code.toLowerCase()] ?? match
+    })
+  }
+  return result
+}
+
+/** タグ除去・エンティティ変換したうえで、本文として意味のない定型文（hnrss のリンク一覧）は空にする */
+function cleanDescription(html: string): string {
+  const text = decodeEntities(html.replace(/<[^>]*>/g, ' ')).replace(/\s+/g, ' ').trim()
+  return /^Article URL:/i.test(text) ? '' : text
+}
+
 function detectCategory(text: string): Category {
   const normalized = text.toLowerCase()
   for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
@@ -59,13 +98,16 @@ function parseItems(parsed: any, source: FeedSource): Article[] {
   const items = Array.isArray(rawItems) ? rawItems : [rawItems]
 
   return items.map((item: any, index: number) => {
-    const title = item.title?.['#text'] || item.title || ''
-    const description =
-      item.description?.['#text'] ||
-      item.description ||
-      item['content:encoded'] ||
-      item.summary ||
-      ''
+    const title = decodeEntities(String(item.title?.['#text'] || item.title || ''))
+    const description = cleanDescription(
+      String(
+        item.description?.['#text'] ||
+          item.description ||
+          item['content:encoded'] ||
+          item.summary ||
+          ''
+      )
+    )
     const link = extractItemLink(item)
     const pubDate = item.pubDate || item.updated || item.published || ''
     const category = detectCategory(`${title} ${description}`)
@@ -80,7 +122,7 @@ function parseItems(parsed: any, source: FeedSource): Article[] {
     return {
       id: stableId,
       title: title.trim(),
-      description: description.replace(/<[^>]*>/g, '').slice(0, 200).trim(),
+      description: description.slice(0, 200),
       url: link.trim(),
       urlToImage: extractImage(item),
       publishedAt: pubDate ? new Date(pubDate).toISOString() : new Date().toISOString(),

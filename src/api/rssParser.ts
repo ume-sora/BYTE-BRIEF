@@ -25,6 +25,45 @@ function buildRequest(source: FeedSource, useCorsProxy: boolean): FeedRequest {
   }
 }
 
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  nbsp: ' ',
+  hellip: '…',
+  mdash: '—',
+  ndash: '–',
+  lsquo: '‘',
+  rsquo: '’',
+  ldquo: '“',
+  rdquo: '”',
+}
+
+/** RSS の見出し・本文に残る HTML エンティティ（&#8217; / &amp; など）を文字に戻す */
+function decodeEntities(text: string): string {
+  // &amp;#8217; のような二重エンコードにも対応するため2回まで処理する
+  let result = text
+  for (let i = 0; i < 2 && result.includes('&'); i++) {
+    result = result.replace(/&(#x[0-9a-f]+|#[0-9]+|[a-z]+);/gi, (match, code: string) => {
+      if (code[0] === '#') {
+        const point =
+          code[1] === 'x' || code[1] === 'X' ? parseInt(code.slice(2), 16) : parseInt(code.slice(1), 10)
+        return Number.isFinite(point) && point <= 0x10ffff ? String.fromCodePoint(point) : match
+      }
+      return NAMED_ENTITIES[code.toLowerCase()] ?? match
+    })
+  }
+  return result
+}
+
+/** タグ除去・エンティティ変換したうえで、本文として意味のない定型文（hnrss のリンク一覧）は空にする */
+function cleanDescription(html: string): string {
+  const text = decodeEntities(html.replace(/<[^>]*>/g, ' ')).replace(/\s+/g, ' ').trim()
+  return /^Article URL:/i.test(text) ? '' : text
+}
+
 // Detect category from title + description keywords
 function detectCategory(text: string): Category {
   const normalizedText = text.toLowerCase()
@@ -79,10 +118,10 @@ function toIsoDate(raw: string): string {
 
 // Normalize a single RSS / Atom item into our Article type
 function normalizeItem(item: XmlNode, source: FeedSource, index: number): Article {
-  const title = textOf(item.title).trim()
-  const description = textOf(item.description ?? item.summary ?? item['content:encoded'] ?? item.content)
-    .replace(/<[^>]*>/g, '')
-    .trim()
+  const title = decodeEntities(textOf(item.title)).trim()
+  const description = cleanDescription(
+    textOf(item.description ?? item.summary ?? item['content:encoded'] ?? item.content)
+  )
   const url = extractLink(item.link) || textOf(item.guid).trim() || textOf(item.id).trim()
   const titleAndDesc = `${title} ${description}`
   const category = detectCategory(titleAndDesc) ?? source.defaultCategory
