@@ -46,7 +46,8 @@
     "cloud": "クラウド",
     "devtools": "開発ツール",
     "startups": "スタートアップ",
-    "hardware": "ハードウェア"
+    "hardware": "ハードウェア",
+    "general": "その他"
   },
   "actions": {
     "search_placeholder": "記事を検索...",

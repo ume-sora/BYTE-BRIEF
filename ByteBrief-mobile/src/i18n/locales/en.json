@@ -46,7 +46,8 @@
     "cloud": "Cloud",
     "devtools": "Dev Tools",
     "startups": "Startups",
-    "hardware": "Hardware"
+    "hardware": "Hardware",
+    "general": "General"
   },
   "actions": {
     "search_placeholder": "Search articles…",
