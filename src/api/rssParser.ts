@@ -1,18 +1,28 @@
-import Parser from 'rss-parser'
+import { XMLParser } from 'fast-xml-parser'
 import { RSS_SOURCES, CATEGORY_KEYWORDS, type FeedSource } from './rssFeeds'
 import type { Article, Category } from '@/types/news'
 
-const parser = new Parser({
-  customFields: {
-    item: ['media:content', 'media:thumbnail', 'enclosure'],
-  },
+const xmlParser = new XMLParser({
+  ignoreAttributes: false,
+  attributeNamePrefix: '@_',
 })
 
+// Parsed XML node (fast-xml-parser output)
+type XmlNode = Record<string, unknown>
+
 // CORS proxy for browser environments
+// Dev: Vite server.proxy (/rss-proxy/<id>) returns the raw feed
+// Prod: allorigins wraps the feed in JSON
 // In React Native, fetch works directly — pass useCorsProxy=false
-function buildUrl(feedUrl: string, useCorsProxy: boolean): string {
-  if (!useCorsProxy) return feedUrl
-  return `https://api.allorigins.win/get?url=${encodeURIComponent(feedUrl)}`
+type FeedRequest = { url: string; wrappedInJson: boolean }
+
+function buildRequest(source: FeedSource, useCorsProxy: boolean): FeedRequest {
+  if (!useCorsProxy) return { url: source.url, wrappedInJson: false }
+  if (import.meta.env.DEV) return { url: `/rss-proxy/${source.id}`, wrappedInJson: false }
+  return {
+    url: `https://api.allorigins.win/get?url=${encodeURIComponent(source.url)}`,
+    wrappedInJson: true,
+  }
 }
 
 // Detect category from title + description keywords
@@ -27,36 +37,63 @@ function detectCategory(text: string): Category {
   return 'general'
 }
 
+// Text content of a node that may be a string or { '#text': ... }
+function textOf(value: unknown): string {
+  if (typeof value === 'string') return value
+  if (typeof value === 'number') return String(value)
+  if (value && typeof value === 'object' && '#text' in value) {
+    return String((value as XmlNode)['#text'])
+  }
+  return ''
+}
+
+function attrOf(value: unknown, name: string): string | undefined {
+  if (!value || typeof value !== 'object') return undefined
+  const attr = (value as XmlNode)[`@_${name}`]
+  return typeof attr === 'string' ? attr : undefined
+}
+
 // Extract thumbnail URL from RSS item
-function extractImage(item: Record<string, unknown>): string | undefined {
-  const mediaContent = item['media:content'] as { $?: { url?: string } } | undefined
-  const mediaThumb = item['media:thumbnail'] as { $?: { url?: string } } | undefined
-  const enclosure = item.enclosure as { url?: string } | undefined
-  const itunesImage = item['itunes:image'] as { $?: { href?: string } } | undefined
+function extractImage(item: XmlNode): string | undefined {
   return (
-    mediaContent?.$?.url ??
-    mediaThumb?.$?.url ??
-    enclosure?.url ??
-    itunesImage?.$?.href ??
-    undefined
+    attrOf(item['media:content'], 'url') ??
+    attrOf(item['media:thumbnail'], 'url') ??
+    attrOf(item.enclosure, 'url') ??
+    attrOf(item['itunes:image'], 'href')
   )
 }
 
-// Normalize a single RSS item into our Article type
-function normalizeItem(
-  item: { title?: string; contentSnippet?: string; guid?: string; link?: string; isoDate?: string; [k: string]: unknown },
-  source: FeedSource
-): Article {
-  const titleAndDesc = `${item.title ?? ''} ${item.contentSnippet ?? ''}`
+// Atom / 一部 RSS で link が配列・オブジェクトになるため正規化
+function extractLink(link: unknown): string {
+  if (Array.isArray(link)) {
+    const alternate = link.find((l) => attrOf(l, 'rel') === undefined || attrOf(l, 'rel') === 'alternate')
+    return extractLink(alternate ?? link[0])
+  }
+  return (attrOf(link, 'href') ?? textOf(link)).trim()
+}
+
+function toIsoDate(raw: string): string {
+  const date = new Date(raw)
+  return Number.isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString()
+}
+
+// Normalize a single RSS / Atom item into our Article type
+function normalizeItem(item: XmlNode, source: FeedSource, index: number): Article {
+  const title = textOf(item.title).trim()
+  const description = textOf(item.description ?? item.summary ?? item['content:encoded'] ?? item.content)
+    .replace(/<[^>]*>/g, '')
+    .trim()
+  const url = extractLink(item.link) || textOf(item.guid).trim() || textOf(item.id).trim()
+  const titleAndDesc = `${title} ${description}`
   const category = detectCategory(titleAndDesc) ?? source.defaultCategory
 
   return {
-    id: (item.guid as string) || (item.link as string) || `${source.id}-${item.isoDate}`,
-    title: (item.title as string) ?? '(タイトルなし)',
-    description: (item.contentSnippet as string)?.slice(0, 200) ?? '',
-    url: (item.link as string) ?? '',
-    urlToImage: extractImage(item as Record<string, unknown>),
-    publishedAt: (item.isoDate as string) ?? new Date().toISOString(),
+    id: textOf(item.guid).trim() || textOf(item.id).trim() || url || `${source.id}-${index}`,
+    title: title || '(タイトルなし)',
+    description: description.slice(0, 200),
+    url,
+    urlToImage: extractImage(item),
+    publishedAt: toIsoDate(textOf(item.pubDate ?? item.updated ?? item.published ?? item['dc:date'])),
     source: {
       id: source.id,
       name: source.name,
@@ -64,8 +101,18 @@ function normalizeItem(
       language: source.language,
     },
     category,
-    readTime: Math.max(1, Math.ceil(((item.contentSnippet as string)?.length ?? 200) / 400)),
+    readTime: Math.max(1, Math.ceil((description.length || 200) / 400)),
   }
+}
+
+// RSS 2.0 (<rss><channel><item>) と Atom (<feed><entry>) の両方に対応
+function parseFeed(xml: string, source: FeedSource): Article[] {
+  const parsed = xmlParser.parse(xml) as { rss?: { channel?: XmlNode }; feed?: XmlNode }
+  const channel = parsed.rss?.channel ?? parsed.feed
+  if (!channel) return []
+  const rawItems = channel.item ?? channel.entry ?? []
+  const items = (Array.isArray(rawItems) ? rawItems : [rawItems]) as XmlNode[]
+  return items.map((item, index) => normalizeItem(item, source, index))
 }
 
 const FEED_FETCH_MS = 8000
@@ -83,22 +130,22 @@ function createAbortSignalWithTimeout(ms: number): { signal: AbortSignal; cancel
 async function fetchFeed(source: FeedSource, useCorsProxy: boolean): Promise<Article[]> {
   const { signal, cancel } = createAbortSignalWithTimeout(FEED_FETCH_MS)
   try {
-    const url = buildUrl(source.url, useCorsProxy)
-    let feedText: string
+    const { url, wrappedInJson } = buildRequest(source, useCorsProxy)
+    const res = await fetch(url, { signal })
+    if (!res.ok) {
+      console.warn(`[RSS] HTTP ${res.status} for ${source.name}`)
+      return []
+    }
 
-    if (useCorsProxy) {
-      const res = await fetch(url, { signal })
+    let feedText: string
+    if (wrappedInJson) {
       const json = (await res.json()) as { contents?: string }
       feedText = json.contents ?? ''
     } else {
-      const res = await fetch(url, { signal })
       feedText = await res.text()
     }
 
-    const feed = await parser.parseString(feedText)
-    return (feed.items ?? []).map((item) =>
-      normalizeItem(item as unknown as Parameters<typeof normalizeItem>[0], source)
-    )
+    return parseFeed(feedText, source)
   } catch (err) {
     console.warn(`[RSS] Failed to fetch ${source.name}:`, err)
     return []
