@@ -6,6 +6,7 @@ import {
   Pressable,
   StyleSheet,
   Modal,
+  ActivityIndicator,
 } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
@@ -85,7 +86,7 @@ function sortBookmarkedList(
 export default function BookmarksScreen() {
   const { t, i18n } = useTranslation()
   const router = useRouter()
-  const { bookmarkedList, toggleBookmark, bookmarks } = useBookmarks()
+  const { bookmarkedList, toggleBookmark, bookmarks, ready: bookmarksReady } = useBookmarks()
   const [sortMode, setSortMode] = useState<BookmarkSortMode>('added_desc')
   const [sortHydrated, setSortHydrated] = useState(false)
   const [sortModalVisible, setSortModalVisible] = useState(false)
@@ -125,6 +126,17 @@ export default function BookmarksScreen() {
   )
 
   const closeSortModal = useCallback(() => setSortModalVisible(false), [])
+
+  if (!bookmarksReady) {
+    return (
+      <View style={styles.container}>
+        <Header bookmarkCount={bookmarks.size} />
+        <View style={styles.loadingCentered}>
+          <ActivityIndicator size="large" color="#00D4FF" />
+        </View>
+      </View>
+    )
+  }
 
   return (
     <View style={styles.container}>
@@ -234,6 +246,7 @@ export default function BookmarksScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0D0F14' },
+  loadingCentered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   sortBar: {
     height: SORT_BAR_HEIGHT,
     flexShrink: 0,
