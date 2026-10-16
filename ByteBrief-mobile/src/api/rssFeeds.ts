@@ -28,12 +28,20 @@ export const RSS_SOURCES: FeedSource[] = [
     color: '#7B1FA2',
   },
   {
-    id: 'zdnet-jp',
-    name: 'ZDNet Japan',
-    url: 'https://japan.zdnet.com/rss/index.rdf',
+    id: 'itmedia-enterprise',
+    name: 'ITmedia エンタープライズ',
+    url: 'https://rss.itmedia.co.jp/rss/2.0/enterprise.xml',
     language: 'ja',
     defaultCategory: 'cloud',
     color: '#1565C0',
+  },
+  {
+    id: 'publickey',
+    name: 'Publickey',
+    url: 'https://www.publickey1.jp/atom.xml',
+    language: 'ja',
+    defaultCategory: 'cloud',
+    color: '#2E7D32',
   },
   {
     id: 'ascii',
@@ -50,14 +58,6 @@ export const RSS_SOURCES: FeedSource[] = [
     language: 'ja',
     defaultCategory: 'general',
     color: '#00897B',
-  },
-  {
-    id: 'techcrunch-jp',
-    name: 'TechCrunch Japan',
-    url: 'https://jp.techcrunch.com/feed/',
-    language: 'ja',
-    defaultCategory: 'startups',
-    color: '#00BCD4',
   },
   // ── 英語ソース ────────────────────────────────
   {
